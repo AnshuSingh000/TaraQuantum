@@ -1,0 +1,14 @@
+# Ignore the Virtual Environment (Heavy!)
+venv/
+env/
+.env
+
+# Ignore Compiled Python Garbage
+__pycache__/
+*.py[cod]
+
+# Ignore Mac System Files
+.DS_Store
+
+# Ignore User Settings
+.vscode/
