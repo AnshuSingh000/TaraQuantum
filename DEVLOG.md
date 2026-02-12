@@ -43,3 +43,15 @@
 
 **New Dependencies:**
 - `pyttsx3` (Offline Text-to-Speech)
+
+Phase 3: Expanding the Quantum Set
+**Status:**  SUCCESS
+
+**Completed Milestones:**
+1. **Lexer Upgrade:** Updated `lexer.py` to recognize `x qubit N` and `z qubit N`.
+2. **Engine Upgrade:** Updated `engine.py` to map these tokens to Qiskit's `.x()` and `.z()` methods.
+3. **Manual Testing:** Verified circuit generation with mixed gates (X, Z).
+
+**Technical Note:**
+- The X-gate acts as a classical NOT (0 -> 1).
+- The Z-gate acts as a Phase Flip (crucial for interference algorithms).
