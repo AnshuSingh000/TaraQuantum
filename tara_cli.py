@@ -1,88 +1,84 @@
 import sys
 import os
 
-# 1. Ensure Python finds the SDK
+# Ensure we can find the tara_sdk folder
 sys.path.append(os.getcwd())
 
-# 2. Import the actual classes from your files
 from tara_sdk.core.lexer import Lexer
 from tara_sdk.analysis.inspector import Inspector
 from tara_sdk.backend.engine import QiskitEngine
-from tara_sdk.utils.logger import setup_logger
-
-# Setup CLI Logger
-log = setup_logger("CLI")
+from tara_sdk.utils.voice import TaraVoice  # <--- NEW IMPORT
 
 def main():
-    print("==========================================")
-    print("   T.A.R.A. Quantum Compiler (v1.0)       ")
-    print("==========================================")
-    print("Type your commands. Type 'RUN' to execute the block.")
+    # 1. Initialize the Voice
+    voice = TaraVoice()
     
-    # Initialize the Trinity (The 3 parts of the brain)
+    # 2. Greeting
+    voice.speak("Tara System Online. Awaiting Quantum Instructions.")
+
+    # 3. Initialize the Brain
     lexer = Lexer()
     inspector = Inspector()
     engine = QiskitEngine()
     
-    # Buffer to hold multiple lines of code
     code_buffer = []
+
+    print("==========================================")
+    print("   T.A.R.A. Quantum Compiler (v1.1)       ")
+    print("==========================================")
 
     while True:
         try:
-            # Get input
             line = input("   > ").strip()
         except KeyboardInterrupt:
+            voice.speak("Shutting down.")
             break
             
-        # Exit Condition
+        # HANDLE EXIT
         if line.lower() in ["exit", "quit"]:
+            voice.speak("Goodbye, Commander.")
             break
             
-        # Run Condition
+        # HANDLE RUN
         if line.lower() == "run":
             if not code_buffer:
-                print("⚠️  Buffer is empty. Add commands first.")
+                voice.speak("Buffer is empty. Please add commands first.")
                 continue
 
-            # Combine lines into one script
+            voice.speak("Compiling circuit...")
             full_script = "\n".join(code_buffer)
-            log.info("Compiling script...")
             
-            # --- STEP 1: LEXER (Text -> Tokens) ---
+            # --- LEXER ---
             tokens = lexer.tokenize(full_script)
             
-            if not tokens:
-                print("❌ No valid tokens found.")
+            # --- INSPECTOR ---
+            is_safe, errors = inspector.analyze(tokens)
+            if not is_safe:
+                voice.speak("Safety protocol violated.")
+                for err in errors:
+                    print(f"❌ {err}")
                 code_buffer = []
                 continue
 
-            # --- STEP 2: INSPECTOR (Safety Check) ---
-            is_safe, errors = inspector.analyze(tokens)
-            
-            if not is_safe:
-                for err in errors:
-                    print(f"❌ {err}")
-                log.error("Safety checks failed. Aborting.")
-                code_buffer = [] # Reset
-                continue
-
-            # --- STEP 3: ENGINE (Build Circuit) ---
+            # --- ENGINE ---
             try:
                 qc = engine.compile(tokens)
-                print("\n" + str(qc))
+                print(qc) # Print ASCII art
                 
                 # Save the image
-                output_file = "tara_circuit.png"
-                engine.save_diagram(qc, output_file)
-                print(f"\n✅ SUCCESS: Circuit saved to '{output_file}'")
+                engine.save_diagram(qc, "tara_circuit.png")
+                
+                voice.speak("Circuit generated successfully.")
+                
             except Exception as e:
-                print(f"❌ COMPILER ERROR: {e}")
+                voice.speak("System error detected.")
+                print(e)
             
-            # Clear buffer for the next program
+            # Clear buffer for next run
             code_buffer = []
         
+        # HANDLE REGULAR COMMANDS
         else:
-            # Add line to buffer
             if line:
                 code_buffer.append(line)
 
