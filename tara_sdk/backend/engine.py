@@ -29,10 +29,17 @@ class QiskitEngine:
                 qc.x(t.value['target'])
             elif t.type == 'Z':
                 qc.z(t.value['target'])
+            # --- NEW PHASE GATES ---
+            elif t.type == 'S':
+                qc.s(t.value['target'])
+                log.info(f"Applied S gate (90 deg) to qubit {t.value['target']}")
+            elif t.type == 'T':
+                qc.t(t.value['target'])
+                log.info(f"Applied T gate (45 deg) to qubit {t.value['target']}")
+            # -----------------------
             elif t.type == 'CX':
                 qc.cx(t.value['ctrl'], t.value['target'])
             elif t.type == 'ENTANGLE':
-                # This is the Macro: One command creates two gates
                 q1, q2 = t.value['q1'], t.value['q2']
                 qc.h(q1)
                 qc.cx(q1, q2)
@@ -50,9 +57,8 @@ class QiskitEngine:
         log.info(f"Simulation Results: {counts}")
         return counts
 
-    def save_diagram(self, qc, filename="circuit.png"):
+    def save_diagram(self, qc, filename="tara_circuit.png"):
         log.info(f"Rendering blueprint to {filename}...")
-        # Note: Added plt.close() to keep your Mac's memory clean
         fig = qc.draw(output='mpl', style='iqp')
         fig.savefig(filename, dpi=300)
         plt.close()
