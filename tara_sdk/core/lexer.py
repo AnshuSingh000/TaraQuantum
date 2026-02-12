@@ -1,70 +1,53 @@
 import re
-from ..utils.logger import setup_logger
-
-log = setup_logger("LEXER")
 
 class Token:
-    def __init__(self, type_, value=None, line=0):
-        self.type = type_
+    def __init__(self, type, value=None):
+        self.type = type
         self.value = value
-        self.line = line
 
 class Lexer:
     def __init__(self):
-        # The Grammar Rules (I added X and Z here)
-        self.rules = [
-            ('CREATE',  r'(?i)(create|init)\s+(\d+)\s+(qubits?)'),
-            
-            # GATES
-            ('H',       r'(?i)(h|superpose)\s+(qubit\s+)?(\d+)'),
-            ('X',       r'(?i)(x|not)\s+(qubit\s+)?(\d+)'),        # <--- NEW
-            ('Z',       r'(?i)(z|phase)\s+(qubit\s+)?(\d+)'),      # <--- NEW
-            
-            ('CX',      r'(?i)(cx|link)\s+(\d+)\s+(to|with)\s+(\d+)'),
-            ('MEASURE', r'(?i)(measure)\s+(all)'),
+        # Expanded vocabulary using non-capturing groups (?: ... )
+        # This allows multiple words to trigger the same logic tag.
+        self.patterns = [
+            ('CREATE', r'(?:create|add|initialize|make|spawn) (\d+) qubits?'),
+            ('H', r'(?:h|hadamard|superpose|spin) qubit (\d+)'),
+            ('X', r'(?:x|not|flip|invert) qubit (\d+)'),
+            ('Z', r'(?:z|phase) qubit (\d+)'),
+            ('CX', r'(?:cx|cnot|link|connect) (\d+) with (\d+)'),
+            ('MEASURE', r'(?:measure|observe|collapse|check) all'),
+            ('ENTANGLE', r'(?:entangle|pair|spook) (\d+) and (\d+)') 
         ]
 
-    def tokenize(self, code):
+    def tokenize(self, text):
         tokens = []
-        lines = code.split('\n')
-        log.info(f"Scanning {len(lines)} lines of code...")
+        lines = text.lower().split('\n')
         
-        for i, line in enumerate(lines):
+        for line in lines:
             line = line.strip()
-            if not line or line.startswith('#'): continue
-            
+            if not line:
+                continue
+                
             matched = False
-            for type_, pattern in self.rules:
-                match = re.search(pattern, line)
+            for tag, pattern in self.patterns:
+                match = re.match(pattern, line)
                 if match:
-                    # 1. CREATE
-                    if type_ == 'CREATE':
-                        tokens.append(Token('CREATE', int(match.group(2)), i+1))
-                    
-                    # 2. H-GATE
-                    elif type_ == 'H':
-                        tokens.append(Token('H', {'target': int(match.group(3))}, i+1))
-                    
-                    # 3. X-GATE (NEW)
-                    elif type_ == 'X':
-                        tokens.append(Token('X', {'target': int(match.group(3))}, i+1))
-
-                    # 4. Z-GATE (NEW)
-                    elif type_ == 'Z':
-                        tokens.append(Token('Z', {'target': int(match.group(3))}, i+1))
-
-                    # 5. CNOT
-                    elif type_ == 'CX':
-                        tokens.append(Token('CX', {'ctrl': int(match.group(2)), 'target': int(match.group(4))}, i+1))
-                    
-                    # 6. MEASURE
-                    elif type_ == 'MEASURE':
-                        tokens.append(Token('MEASURE', None, i+1))
+                    # Note: groups(1) and groups(2) refer to the (\d+) parts
+                    if tag == 'CREATE':
+                        tokens.append(Token(tag, int(match.group(1))))
+                    elif tag in ['H', 'X', 'Z']:
+                        tokens.append(Token(tag, {'target': int(match.group(1))}))
+                    elif tag == 'CX':
+                        tokens.append(Token(tag, {'ctrl': int(match.group(1)), 'target': int(match.group(2))}))
+                    elif tag == 'ENTANGLE':
+                        tokens.append(Token(tag, {'q1': int(match.group(1)), 'q2': int(match.group(2))}))
+                    elif tag == 'MEASURE':
+                        tokens.append(Token(tag))
                     
                     matched = True
                     break
             
             if not matched:
-                log.warning(f"Line {i+1} ignored: '{line}'")
-        
+                raise ValueError(f"T.A.R.A. doesn't understand this command: {line}")
+                
         return tokens
