@@ -55,3 +55,11 @@ Phase 3: Expanding the Quantum Set
 **Technical Note:**
 - The X-gate acts as a classical NOT (0 -> 1).
 - The Z-gate acts as a Phase Flip (crucial for interference algorithms).
+
+Phase 4 & 5: Simulation and Macros
+**Status:** SUCCESS
+
+**Completed Milestones:**
+1. **Simulation:** Integrated `qiskit-aer` to calculate measurement probabilities.
+2. **Native Voice:** Switched to `os.system('say')` for stable macOS performance.
+3. **Macros:** Created the `ENTANGLE` command which expands one command into multiple gates (H + CX).
