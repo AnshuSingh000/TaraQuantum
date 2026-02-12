@@ -1,86 +1,84 @@
-import sys
 import os
-
-# Ensure we can find the tara_sdk folder
-sys.path.append(os.getcwd())
-
+import platform # Added to detect the operating system
 from tara_sdk.core.lexer import Lexer
-from tara_sdk.analysis.inspector import Inspector
 from tara_sdk.backend.engine import QiskitEngine
-from tara_sdk.utils.voice import TaraVoice  # <--- NEW IMPORT
+
+def speak(text):
+    """Detects the OS and uses the native voice engine."""
+    current_os = platform.system()
+    try:
+        if current_os == "Darwin":  # macOS
+            os.system(f"say '{text}' &")
+        elif current_os == "Windows":
+            # Uses PowerShell's speech engine
+            ps_cmd = f'Add-Type -AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak("{text}")'
+            os.system(f'powershell -Command "{ps_cmd}" &')
+        elif current_os == "Linux":
+            # Uses espeak (standard on most Linux distros)
+            os.system(f"espeak '{text}' &")
+    except Exception:
+        # Fallback if audio drivers are missing
+        pass
 
 def main():
-    # 1. Initialize the Voice
-    voice = TaraVoice()
+    print("-" * 50)
+    print("T.A.R.A. v1.2 - Universal Quantum Compiler")
+    print("Type 'run' to execute or 'exit' to quit.")
+    print("-" * 50)
     
-    # 2. Greeting
-    voice.speak("Tara System Online. Awaiting Quantum Instructions.")
-
-    # 3. Initialize the Brain
     lexer = Lexer()
-    inspector = Inspector()
     engine = QiskitEngine()
     
     code_buffer = []
-
-    print("==========================================")
-    print("   T.A.R.A. Quantum Compiler (v1.1)       ")
-    print("==========================================")
-
+    
     while True:
         try:
-            line = input("   > ").strip()
-        except KeyboardInterrupt:
-            voice.speak("Shutting down.")
-            break
+            line = input("tara> ").strip()
             
-        # HANDLE EXIT
-        if line.lower() in ["exit", "quit"]:
-            voice.speak("Goodbye, Commander.")
-            break
-            
-        # HANDLE RUN
-        if line.lower() == "run":
-            if not code_buffer:
-                voice.speak("Buffer is empty. Please add commands first.")
+            if not line:
                 continue
-
-            voice.speak("Compiling circuit...")
-            full_script = "\n".join(code_buffer)
+                
+            if line.lower() == 'exit':
+                speak("Shutting down. Goodbye.")
+                break
             
-            # --- LEXER ---
-            tokens = lexer.tokenize(full_script)
-            
-            # --- INSPECTOR ---
-            is_safe, errors = inspector.analyze(tokens)
-            if not is_safe:
-                voice.speak("Safety protocol violated.")
-                for err in errors:
-                    print(f"❌ {err}")
-                code_buffer = []
-                continue
-
-            # --- ENGINE ---
-            try:
+            if line.lower() == 'run':
+                if not code_buffer:
+                    print("Error: No commands to run.")
+                    continue
+                
+                print("Processing instructions...")
+                
+                # 1. Convert English to Tokens
+                full_code = "\n".join(code_buffer)
+                tokens = lexer.tokenize(full_code)
+                
+                # 2. Build the Quantum Circuit
                 qc = engine.compile(tokens)
-                print(qc) # Print ASCII art
+                print("✓ Circuit generated successfully.")
                 
-                # Save the image
+                # 3. Save the Blueprint
                 engine.save_diagram(qc, "tara_circuit.png")
+                print("✓ Blueprint saved to tara_circuit.png")
                 
-                voice.speak("Circuit generated successfully.")
+                # 4. Run the Physics Simulation
+                print("✓ Running simulation on Aer Simulator...")
+                counts = engine.run_simulation(qc)
                 
-            except Exception as e:
-                voice.speak("System error detected.")
-                print(e)
-            
-            # Clear buffer for next run
-            code_buffer = []
-        
-        # HANDLE REGULAR COMMANDS
-        else:
-            if line:
+                # 5. Show Results & Speak
+                print("\n" + "="*30)
+                print(f"SIMULATION RESULTS: {counts}")
+                print("="*30 + "\n")
+                
+                speak("Simulation complete.")
+                
+                code_buffer = [] 
+            else:
                 code_buffer.append(line)
+                
+        except Exception as e:
+            print(f"\n[ERROR]: {e}")
+            speak("System error detected.")
 
 if __name__ == "__main__":
     main()
