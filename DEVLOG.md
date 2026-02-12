@@ -31,3 +31,15 @@
 **Next Steps:**
 - [ ] Implement Text-to-Speech (Voice Module).
 - [ ] Add support for more gates (T-gate, Z-gate).
+
+```
+### 17 Feb 12, 2026 - Phase 2: Voice Integration
+**Status:** SUCCESS
+
+**Completed Milestones:**
+1. **Voice Module:** Created `tara_sdk/utils/voice.py` using `pyttsx3`.
+2. **CLI Integration:** Updated `tara_cli.py` to speak on startup, success, and error events.
+3. **Bug Fix (Voice Loop):** Fixed an issue where the voice engine would freeze after the first sentence by re-initializing the engine instance for every `speak()` call.
+
+**New Dependencies:**
+- `pyttsx3` (Offline Text-to-Speech)

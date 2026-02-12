@@ -9,6 +9,7 @@ TARA allows users to design Quantum Circuits using plain English commands. It pa
 - **Safety Inspector:** Prevents runtime errors (e.g., entangling a qubit with itself) before execution.
 - **Auto-Visualization:** Automatically generates and saves circuit diagrams (`.png`).
 - **Microservices Architecture:** Modular design (Lexer -> Inspector -> Engine).
+- **Voice Feedback:** T.A.R.A. speaks to confirm actions and warn about errors.
 
 ## 🛠️ Installation
 
@@ -16,6 +17,7 @@ TARA allows users to design Quantum Circuits using plain English commands. It pa
 git clone [https://github.com/AnshuSingh000/TaraQuantum.git](https://github.com/AnshuSingh000/TaraQuantum.git)
 cd TaraQuantum
 python tara_cli.py
+pip install pyttsx3
 ## ⚡ How to Run T.A.R.A.
 
 1. **Start the Program:**
