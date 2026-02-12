@@ -11,10 +11,15 @@ class Token:
 
 class Lexer:
     def __init__(self):
-        # The Grammar Rules
+        # The Grammar Rules (I added X and Z here)
         self.rules = [
             ('CREATE',  r'(?i)(create|init)\s+(\d+)\s+(qubits?)'),
+            
+            # GATES
             ('H',       r'(?i)(h|superpose)\s+(qubit\s+)?(\d+)'),
+            ('X',       r'(?i)(x|not)\s+(qubit\s+)?(\d+)'),        # <--- NEW
+            ('Z',       r'(?i)(z|phase)\s+(qubit\s+)?(\d+)'),      # <--- NEW
+            
             ('CX',      r'(?i)(cx|link)\s+(\d+)\s+(to|with)\s+(\d+)'),
             ('MEASURE', r'(?i)(measure)\s+(all)'),
         ]
@@ -32,14 +37,30 @@ class Lexer:
             for type_, pattern in self.rules:
                 match = re.search(pattern, line)
                 if match:
+                    # 1. CREATE
                     if type_ == 'CREATE':
                         tokens.append(Token('CREATE', int(match.group(2)), i+1))
+                    
+                    # 2. H-GATE
                     elif type_ == 'H':
                         tokens.append(Token('H', {'target': int(match.group(3))}, i+1))
+                    
+                    # 3. X-GATE (NEW)
+                    elif type_ == 'X':
+                        tokens.append(Token('X', {'target': int(match.group(3))}, i+1))
+
+                    # 4. Z-GATE (NEW)
+                    elif type_ == 'Z':
+                        tokens.append(Token('Z', {'target': int(match.group(3))}, i+1))
+
+                    # 5. CNOT
                     elif type_ == 'CX':
                         tokens.append(Token('CX', {'ctrl': int(match.group(2)), 'target': int(match.group(4))}, i+1))
+                    
+                    # 6. MEASURE
                     elif type_ == 'MEASURE':
                         tokens.append(Token('MEASURE', None, i+1))
+                    
                     matched = True
                     break
             
