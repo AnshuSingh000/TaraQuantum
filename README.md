@@ -11,6 +11,7 @@ T.A.R.A. allows users to design Quantum Circuits using plain English commands. I
 - **Simulation & Interference:** Built-in `qiskit-aer` support to observe quantum interference patterns.
 - **Auto-Visualization:** Automatically generates high-definition circuit diagrams (`tara_circuit.png`).
 - **Visualizer 2.0:** Built-in ASCII histogram for instant probability analysis.
+- **Library Persistence:** Save and load quantum scripts using the custom `.tara` file format.
 
 ## 🛠️ Installation
 
