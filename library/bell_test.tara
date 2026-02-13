@@ -1,0 +1,4 @@
+spawn 2 qubits
+spin qubit 0
+link 0 with 1
+observe all

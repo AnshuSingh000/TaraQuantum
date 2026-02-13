@@ -1,17 +1,22 @@
-# T.A.R.A. (Text Automated Response Architecture)
+ # T.A.R.A. (Text Automated Response Architecture) 🌌
 
 **A Natural Language Quantum Compiler built in Python.**
 
 T.A.R.A. allows users to design Quantum Circuits using plain English commands. It parses natural language, validates quantum logic via a Safety Inspector, simulates results, and renders professional circuit diagrams using Qiskit.
 
-## 🚀 Features
-- **Natural Language Parsing:** Type "Create 3 qubits" or "Spin qubit 0" instead of writing boilerplate code.
-- **Universal Voice Feedback:** Cross-platform support for macOS (`say`), Windows (`PowerShell`), and Linux (`espeak`).
-- **Advanced Physics Engine:** Supports a Universal Gate Set including Hadamard, CNOT, and Phase gates (S and T).
-- **Simulation & Interference:** Built-in `qiskit-aer` support to observe quantum interference patterns.
-- **Auto-Visualization:** Automatically generates high-definition circuit diagrams (`tara_circuit.png`).
-- **Visualizer 2.0:** Built-in ASCII histogram for instant probability analysis.
-- **Library Persistence:** Save and load quantum scripts using the custom `.tara` file format.
+---
+
+## Features
+* **Natural Language Parsing:** Type "Spawn 2 qubits" or "Spin qubit 0" instead of writing boilerplate code.
+* **Universal Gate Set:** Supports Hadamard (Spin), CNOT (Link), Phase (S), and T-gates for universal quantum computation.
+* **Visualizer 2.0:** High-fidelity ASCII histograms rendered directly in your terminal for instant probability analysis.
+* **Library Persistence:** Save and load quantum scripts using the custom `.tara` file format.
+* **Universal Voice Feedback:** Cross-platform narration for macOS, Windows, and Linux.
+* **Auto-Visualization:** Automatically generates high-definition circuit blueprints (`tara_circuit.png`).
+
+
+
+---
 
 ## 🛠️ Installation
 
@@ -23,7 +28,6 @@ cd TaraQuantum
 # 2. Install core dependencies
 pip install -r requirements.txt
 pip install qiskit-aer
-
 # How to run TaraCompiler
 
 1. Start the Program: Run the CLI from your terminal:
@@ -38,11 +42,27 @@ tara> link 0 with 1
 tara> observe all
 tara> run
 
-# Available CLI commands
+3. Manage your library 
+
+tara> save my_circuit
+tara> clear
+tara> load my_circuit
+
+## Available CLI commands
 run: Compiles the current buffer, generates the diagram, and runs the simulation.
 
 clear: Wipes the current circuit buffer so you can start fresh.
 
 exit: Shuts down the compiler and saves your session logs.
 
+save [name]	Saves the current command buffer to a .tara file.
 
+load [name]	Loads a saved .tara script into the buffer.
+
+## T.A.R.A. comes pre-loaded with fundamental quantum algorithms. You can find them in the /library folder:
+
+load library/teleport — Execute Quantum Teleportation across 3 qubits.
+
+load library/superdense — Demonstrate 2-bit data transfer via 1-qubit.
+
+load library/bell_test — Create maximum entanglement between two particles.
