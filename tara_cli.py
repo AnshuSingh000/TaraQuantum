@@ -2,6 +2,7 @@ import os
 import platform
 from tara_sdk.core.lexer import Lexer
 from tara_sdk.backend.engine import QiskitEngine
+from tara_sdk.utils.visualizer import print_histogram
 
 def speak(text):
     """Detects the OS and uses the native voice engine."""
@@ -39,7 +40,6 @@ def main():
                 speak("Shutting down. Goodbye.")
                 break
 
-            # NEW: The Clear Command
             if line.lower() == 'clear':
                 code_buffer = []
                 print("✓ Buffer cleared. Ready for a new circuit.")
@@ -53,7 +53,7 @@ def main():
                 
                 print("Processing instructions...")
                 
-                # 1. Tokenize (Now understands synonyms like 'spin' or 'spawn')
+                # 1. Tokenize
                 full_code = "\n".join(code_buffer)
                 tokens = lexer.tokenize(full_code)
                 
@@ -61,7 +61,7 @@ def main():
                 qc = engine.compile(tokens)
                 print("✓ Circuit generated successfully.")
                 
-                # 3. Save
+                # 3. Save Blueprint
                 engine.save_diagram(qc, "tara_circuit.png")
                 print("✓ Blueprint saved to tara_circuit.png")
                 
@@ -69,12 +69,12 @@ def main():
                 print("✓ Running simulation on Aer Simulator...")
                 counts = engine.run_simulation(qc)
                 
-                # 5. Output
-                print("\n" + "="*30)
-                print(f"SIMULATION RESULTS: {counts}")
-                print("="*30 + "\n")
+                # 5. Output (Visualizer 2.0)
+                print("\n" + "="*41)
+                print_histogram(counts)
+                print("="*41 + "\n")
                 
-                speak(f"Simulation complete. Results are {counts}")
+                speak("Simulation complete. The probability distribution is on your screen.")
                 
                 code_buffer = [] 
             else:

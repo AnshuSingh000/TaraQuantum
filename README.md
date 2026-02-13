@@ -10,6 +10,7 @@ T.A.R.A. allows users to design Quantum Circuits using plain English commands. I
 - **Advanced Physics Engine:** Supports a Universal Gate Set including Hadamard, CNOT, and Phase gates (S and T).
 - **Simulation & Interference:** Built-in `qiskit-aer` support to observe quantum interference patterns.
 - **Auto-Visualization:** Automatically generates high-definition circuit diagrams (`tara_circuit.png`).
+- **Visualizer 2.0:** Built-in ASCII histogram for instant probability analysis.
 
 ## 🛠️ Installation
 

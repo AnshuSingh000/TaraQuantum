@@ -114,3 +114,8 @@ T.A.R.A. now understands more natural language quantum instructions.
 
 To validate the `T`-gate implementation, the following circuit was executed:
 
+### [2026-02-13] Phase 8: Terminal Visualizer 2.0
+- **Feature:** Created `tara_sdk/utils/visualizer.py` to handle ASCII rendering.
+- **UI Upgrade:** Replaced raw dictionary output with a formatted bar chart (`█` and `░` characters).
+- **UX Improvement:** Simplified voice feedback to guide the user to the terminal results.
+- **Logic:** Integrated sorting and percentage calculation to ensure histograms are always readable regardless of shot count.
