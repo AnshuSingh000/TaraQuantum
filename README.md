@@ -66,3 +66,14 @@ load library/teleport — Execute Quantum Teleportation across 3 qubits.
 load library/superdense — Demonstrate 2-bit data transfer via 1-qubit.
 
 load library/bell_test — Create maximum entanglement between two particles.
+
+##  Project Architecture
+```text
+TaraQuantum/
+├── library/             # Pre-built .tara algorithms
+├── tara_sdk/            # Core Engine
+│   ├── backend/         # Qiskit & Aer logic
+│   ├── core/            # Lexer & Inspector
+│   └── utils/           # Voice, Files, Visualizer
+├── tara_cli.py          # Universal Entry Point
+└── DEVLOG.md            # Version History
