@@ -139,3 +139,32 @@ The final phase focused on transitioning T.A.R.A. from a tool into a platform. B
 
 **Final Reflection:**
 T.A.R.A. has evolved from a simple lexer into a universal quantum compiler capable of simulating non-Clifford gates and providing visual/auditory feedback. The system is now ready for v1.0 release.
+
+
+
+
+ # 📓 T.A.R.A. Development Log (v1.0 to v2.0)
+
+## 🌐 Phase 1 (v2.0): Cloud Integration & Hardware Handshake
+**Date:** 2026-02-13  
+**Status:** ✅ SUCCESSFUL  
+**Focus:** IBM Quantum Runtime V2 & NamasteQuantum Trial
+
+### Achievements
+- **Hardware Handshake:** Successfully routed and executed instructions on the `ibm_torino` 133-qubit Heron processor.
+- **API Migration:** Fully transitioned to `SamplerV2` to comply with the 2026 Qiskit ISA (Instruction Set Architecture) requirements.
+- **Asynchronous Workflow:** Implemented `CloudManager` to handle background job submission while maintaining CLI responsiveness.
+- **Persistent Memory:** Created a local `job_history.txt` system to track Job IDs across sessions.
+
+### Challenges & Solutions
+- **Status Attribute Error:** - *Issue:* Encountered `AttributeError: 'str' object has no attribute 'name'` when checking job status.
+  - *Cause:* Qiskit 2026 API changed `job.status()` from an Enum to a raw String.
+  - *Solution:* Refactored `get_job_results` to perform direct string comparison.
+- **Result Extraction:** - *Issue:* SamplerV2 returns a complex `DataBin` object rather than a simple dictionary.
+  - *Solution:* Targeted `result[0].data.meas.get_counts()` to extract bitstring probabilities.
+
+### Physics Verification (Run #001)
+- **Circuit:** Hadamard Gate on Qubit 0.
+- **Execution:** 4096 shots on `ibm_torino`.
+- **Result:** $|0\rangle$: 54.2%, $|1\rangle$: 45.8%.
+- **Analysis:** Result within acceptable calibration margins for physical hardware; slight skew toward $|0\rangle$ indicates standard $T_1$ relaxation noise.

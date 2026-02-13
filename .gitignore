@@ -12,3 +12,7 @@ __pycache__/
 
 # Ignore User Settings
 .vscode/
+
+.env
+__pycache__/
+*.png

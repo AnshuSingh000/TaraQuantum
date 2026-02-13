@@ -77,3 +77,29 @@ TaraQuantum/
 │   └── utils/           # Voice, Files, Visualizer
 ├── tara_cli.py          # Universal Entry Point
 └── DEVLOG.md            # Version History
+
+
+
+# T.A.R.A. v2.0 - Tactical Asynchronous Quantum Assistant
+
+T.A.R.A. is a specialized CLI-driven Quantum SDK designed for low-latency circuit compilation and execution on IBM's 2026 Heron-class hardware.
+
+## 🚀 Current Status: Phase 1 Complete
+- **Backend:** IBM Quantum Runtime (V2 Primitives)
+- **Target Hardware:** `ibm_torino` (via NamasteQuantum Instance)
+- **Architecture:** Asynchronous Job Tracking with Persistent Memory
+
+## 🛠 Features
+- **Smart Cloud Manager:** Automatically handles ISA (Instruction Set Architecture) transpilation.
+- **Job Memory:** Persistent `job_history.txt` so you never have to manually track 20-character Job IDs.
+- **Voice Feedback:** Cross-platform OS text-to-speech for job status updates.
+
+## ⌨️ Command Set
+| Command | Action |
+| :--- | :--- |
+| `add put [gate] on [q]` | Add a gate to the local buffer. |
+| `run` | Execute circuit on local simulator. |
+| `run --cloud` | Submit circuit to NamasteQuantum practice hub. |
+| `check [ID/last]` | Retrieve results from IBM Quantum. |
+| `history` | List all previous Job IDs. |
+| `clear` | Wipe the current circuit buffer. |
