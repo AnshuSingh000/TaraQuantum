@@ -67,18 +67,6 @@ load library/superdense — Demonstrate 2-bit data transfer via 1-qubit.
 
 load library/bell_test — Create maximum entanglement between two particles.
 
-##  Project Architecture
-```text
-TaraQuantum/
-├── library/             # Pre-built .tara algorithms
-├── tara_sdk/            # Core Engine
-│   ├── backend/         # Qiskit & Aer logic
-│   ├── core/            # Lexer & Inspector
-│   └── utils/           # Voice, Files, Visualizer
-├── tara_cli.py          # Universal Entry Point
-└── DEVLOG.md            # Version History
-
-
 
 # T.A.R.A. v2.0 - Tactical Asynchronous Quantum Assistant
 
@@ -129,5 +117,11 @@ During the transition to v2.5, a suite of diagnostic tools was developed to atte
 This update represents a transition from a **Cloud-Dependent Tool** to a **Sovereign Quantum Platform**. By decoupling from unstable third-party infrastructures, T.A.R.A. empowers the user with complete control over their quantum development environment.
 
 
-
----
+Project structure
+Tara_Quantum/ (v2.5 Sovereign)
+├── tara_cli.py              # User Interface & Entry Point
+├── library/                 # The "Quantum App Store" (.tara scripts)
+└── tara_sdk/                # The Core Engine (The "Product")
+    ├── core/                # Lexer: Human-to-Quantum Translation
+    ├── backend/             # Engine: AerSimulator & Qiskit Logic
+    └── utils/               # Senses: Voice, Visualizer, & Q-Inspector

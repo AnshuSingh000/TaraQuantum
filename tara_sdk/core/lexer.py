@@ -1,52 +1,48 @@
 import re
 
+# 1. ADD THE TOKEN CLASS DEFINITION
 class Token:
     def __init__(self, type, value=None):
         self.type = type
         self.value = value
 
+    def __repr__(self):
+        return f"Token({self.type}, {self.value})"
+
+# 2. UPDATED LEXER
 class Lexer:
     def __init__(self):
-        # Using word boundaries (\b) and search allows "add put H on 0" to work
+        # T.A.R.A. Vocabulary: Mapping human intent to Quantum Logic
         self.patterns = [
-            ('H', r'\bh\b.*(\d+)'),
-            ('X', r'\bx\b.*(\d+)'),
-            ('Z', r'\bz\b.*(\d+)'),
-            ('S', r'\bs\b.*(\d+)'),
-            ('T', r'\bt\b.*(\d+)'),
-            ('CX', r'\bcx\b.*?(\d+).*?(\d+)'),
-            ('MEASURE', r'\bmeasure\b'),
-            ('CREATE', r'\b(?:create|add|make)\b.*?(\d+)')
+            ('CREATE', r'\bspawn\b.*?(\d+)'),
+            ('SPIN', r'\bspin\b.*?(\d+)'),         
+            ('LINK', r'\blink\b.*?(\d+).*?(\d+)'), 
+            ('OBSERVE', r'\bobserve\b'),           
+            ('X', r'\bx\b.*?(\d+)'),
+            ('Z', r'\bz\b.*?(\d+)'),
+            ('ENTANGLE', r'\bentangle\b.*?(\d+).*?(\d+)')
         ]
 
     def tokenize(self, text):
         tokens = []
-        lines = text.split('\n')
-        
-        for line in lines:
-            line = line.strip()
+        for line in text.split('\n'):
+            line = line.strip().lower()
             if not line: continue
-                
             matched = False
             for tag, pattern in self.patterns:
-                # search looks for the gate anywhere in your "add put..." sentence
-                match = re.search(pattern, line, re.IGNORECASE)
+                match = re.search(pattern, line)
                 if match:
-                    if tag == 'H':
+                    if tag == 'CREATE': 
+                        tokens.append(Token('CREATE', int(match.group(1))))
+                    elif tag in ['SPIN', 'X', 'Z']: 
                         tokens.append(Token(tag, {'target': int(match.group(1))}))
-                    elif tag == 'CX':
-                        tokens.append(Token(tag, {'ctrl': int(match.group(1)), 'target': int(match.group(2))}))
-                    elif tag == 'CREATE':
-                        tokens.append(Token(tag, int(match.group(1))))
-                    elif tag in ['X', 'Z', 'S', 'T']:
-                        tokens.append(Token(tag, {'target': int(match.group(1))}))
-                    elif tag == 'MEASURE':
-                        tokens.append(Token(tag))
-                    
+                    elif tag in ['LINK', 'ENTANGLE']: 
+                        tokens.append(Token('LINK', {'ctrl': int(match.group(1)), 'target': int(match.group(2))}))
+                    elif tag == 'OBSERVE': 
+                        tokens.append(Token('OBSERVE'))
                     matched = True
                     break
-            
-            if not matched:
-                raise ValueError(f"T.A.R.A. doesn't understand this command: {line}")
-                
+            if not matched: 
+                # Professional Error Handling
+                raise ValueError(f"T.A.R.A. Logic Error: Command not recognized: '{line}'")
         return tokens

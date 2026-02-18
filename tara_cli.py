@@ -1,42 +1,54 @@
+import sys
 import os
-from qiskit_ibm_runtime import QiskitRuntimeService
 
-def login():
-    print("\n" + "="*40)
-    print("      T.A.R.A. SECURE CLOUD LOGIN (IBM CLOUD)")
-    print("="*40)
-    
-    # For your key, this should be the ApiKey-... string
-    token = input("\n🔑 Enter IBM Cloud API Key: ").strip()
-    
-    # For IBM Cloud, this is usually your 'CRN' or 'Service Name'
-    instance = input("🏢 Enter Cloud Instance (Service Name/CRN): ").strip()
+# Adds the current directory to the system path so Python finds 'tara_sdk'
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-    if not token or not instance:
-        print("\n❌ Error: Key and Instance cannot be empty.")
+try:
+    from tara_sdk.core.lexer import Lexer
+    from tara_sdk.backend.engine import QiskitEngine
+    from tara_sdk.utils.visualizer import print_histogram
+    from tara_sdk.utils.voice import TaraVoice
+except ImportError as e:
+    print(f"❌ Setup Error: {e}")
+    sys.exit(1)
+
+def run_tara(file_name):
+    voice = TaraVoice()
+    engine = QiskitEngine()
+    lexer = Lexer()
+
+    # Search in root and /library/
+    possible_paths = [file_name, os.path.join("library", file_name)]
+    file_path = next((p for p in possible_paths if os.path.exists(p)), None)
+    
+    if not file_path:
+        print(f"❌ Error: Could not find '{file_name}'")
         return
 
-    print("⏳ Verifying credentials with IBM Cloud...")
+    with open(file_path, 'r') as f:
+        code = f.read()
+
+    voice.speak(f"Manifesting {file_name}")
+    
     try:
-        # 1. Save using the ibm_cloud channel
-        QiskitRuntimeService.save_account(
-            channel="ibm_cloud",
-            token=token,
-            instance=instance,
-            overwrite=True
-        )
+        tokens = lexer.tokenize(code)
+        qc = engine.compile(tokens)
         
-        # 2. Test the connection
-        QiskitRuntimeService(channel="ibm_cloud")
+        # Execution
+        results = engine.run_locally(qc) 
+        print_histogram(results)
         
-        print("\n✅ Success! IBM Cloud account verified and linked.")
+        # Save Visualization
+        engine.save_vision(qc, "tara_circuit.png")
+        voice.speak("Execution complete.")
+        
     except Exception as e:
-        print(f"\n❌ Login failed: Invalid Cloud credentials.")
-        print(f"Error detail: {e}")
-        try:
-            QiskitRuntimeService.delete_account(channel="ibm_cloud")
-        except:
-            pass
+        print(f"⚠️ Error: {e}")
+        voice.speak("A logic error occurred.")
 
 if __name__ == "__main__":
-    login()
+    if len(sys.argv) > 1:
+        run_tara(sys.argv[1])
+    else:
+        print("Usage: python tara_cli.py bell_test.tara")
