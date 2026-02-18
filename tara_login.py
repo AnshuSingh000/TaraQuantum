@@ -3,22 +3,22 @@ from qiskit_ibm_runtime import QiskitRuntimeService
 
 def login():
     print("\n" + "="*40)
-    print("      T.A.R.A. SECURE CLOUD LOGIN (IBM CLOUD)")
+    print("      T.A.R.A. SECURE CLOUD LOGIN")
     print("="*40)
     
-    # For your key, this should be the ApiKey-... string
+    # Use the ApiKey-23c2a55a... from your screenshot
     token = input("\n🔑 Enter IBM Cloud API Key: ").strip()
     
-    # For IBM Cloud, this is usually your 'CRN' or 'Service Name'
-    instance = input("🏢 Enter Cloud Instance (Service Name/CRN): ").strip()
+    # Use 'NamasteQuantum' (The name from your screenshot)
+    instance = input("🏢 Enter Instance Name: ").strip()
 
     if not token or not instance:
         print("\n❌ Error: Key and Instance cannot be empty.")
         return
 
-    print("⏳ Verifying credentials with IBM Cloud...")
+    print(f"⏳ Verifying '{instance}' on IBM Cloud...")
     try:
-        # 1. Save using the ibm_cloud channel
+        # Save using the ibm_cloud channel
         QiskitRuntimeService.save_account(
             channel="ibm_cloud",
             token=token,
@@ -26,13 +26,12 @@ def login():
             overwrite=True
         )
         
-        # 2. Test the connection
+        # Test connection
         QiskitRuntimeService(channel="ibm_cloud")
+        print("\n✅ Success! NamasteQuantum is linked and verified.")
         
-        print("\n✅ Success! IBM Cloud account verified and linked.")
     except Exception as e:
-        print(f"\n❌ Login failed: Invalid Cloud credentials.")
-        print(f"Error detail: {e}")
+        print(f"\n❌ Login failed. Error: {e}")
         try:
             QiskitRuntimeService.delete_account(channel="ibm_cloud")
         except:

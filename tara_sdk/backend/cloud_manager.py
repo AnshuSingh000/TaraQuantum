@@ -1,62 +1,37 @@
-import os
-from dotenv import load_dotenv
-from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2 as Sampler
-from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+from ..utils.logger import setup_logger
 
-load_dotenv()
+log = setup_logger("INSPECTOR")
 
-class CloudManager:
-    def __init__(self):
-        self.token = os.getenv("IBMQ_TOKEN")
-        try:
-            # Connect to IBM Quantum. 
-            # Note: instance="ibm-q/open/main" is the standard path. 
-            # If your 'NamasteQuantum' has a custom path, update it here.
-            self.service = QiskitRuntimeService(
-                channel="ibm_quantum_platform", 
-                token=self.token,
-                instance="ibm-q/open/main" 
-            )
-            print("✨ T.A.R.A. v2.0: Cloud Handshake Successful.")
-        except Exception:
-            self.service = QiskitRuntimeService(channel="ibm_quantum_platform", token=self.token)
-            print("✨ T.A.R.A. v2.0: Connected (Auto-Discovery).")
+class Inspector:
+    def analyze(self, tokens):
+        log.info("Running Static Analysis (Safety Check)...")
+        errors = []
+        max_qubits = 0
+        
+        # Pass 1: Find System Size
+        for t in tokens:
+            if t.type == 'CREATE':
+                max_qubits = t.value
+                break
+        
+        if max_qubits == 0:
+            return False, ["FATAL: No 'Create qubits' command found."]
 
-    def execute_on_hardware(self, circuit):
-        if not self.service: return None
-
-        try:
-            backend = self.service.least_busy(simulator=False, operational=True)
-            print(f"🛰️ Routing to Real Hardware: {backend.name}...")
-
-            if not circuit.cregs:
-                circuit.measure_all()
-
-            # Transpilation is mandatory for V2 Primitives
-            pm = generate_preset_pass_manager(backend=backend, optimization_level=1)
-            isa_circuit = pm.run(circuit)
-
-            sampler = Sampler(mode=backend)
-            job = sampler.run([isa_circuit])
-            return job
+        # Pass 2: Check Logic
+        for t in tokens:
+            if t.type == 'H':
+                q = t.value['target']
+                if q >= max_qubits:
+                    errors.append(f"Line {t.line}: Logic Error! Qubit {q} does not exist (Max: {max_qubits-1}).")
             
-        except Exception as e:
-            print(f"❌ Cloud Execution Error: {e}")
-            return None
+            if t.type == 'CX':
+                c, tgt = t.value['ctrl'], t.value['target']
+                if c == tgt:
+                    errors.append(f"Line {t.line}: Physics Violation! Cannot entangle Qubit {c} with itself.")
 
-    def get_job_results(self, job_id):
-        """Fetch results from the cloud once the job is DONE."""
-        try:
-            job = self.service.job(job_id)
-            # FIX: Check the status string directly (no .name attribute needed)
-            status = str(job.status())
+        if errors:
+            log.error(f"Found {len(errors)} critical errors.")
+            return False, errors
             
-            if status == "JobStatus.DONE" or status == "DONE":
-                result = job.result()
-                # Accessing the first PUB (Primitive Unified Bloc) result
-                # and grabbing the bitstring counts
-                return result[0].data.meas.get_counts()
-            
-            return f"Status: {status}"
-        except Exception as e:
-            return f"Error retrieving job: {e}"
+        log.info("✅ Code is clean. Proceeding to compilation.")
+        return True, []

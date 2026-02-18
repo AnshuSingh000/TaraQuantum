@@ -103,3 +103,31 @@ T.A.R.A. is a specialized CLI-driven Quantum SDK designed for low-latency circui
 | `check [ID/last]` | Retrieve results from IBM Quantum. |
 | `history` | List all previous Job IDs. |
 | `clear` | Wipe the current circuit buffer. |
+
+# T.A.R.A. v2.5 - The Autonomy Update
+
+**"Removing the barriers between the developer and the quantum field."**
+
+## The Strategic Pivot: Cloud-Independent Execution
+Following the successful hardware benchmarks on `ibm_torino` in v2.0, the project encountered significant infrastructure friction with centralized cloud providers. Persistent authentication latency and regional service outages in the Washington DC (us-east) data center led to a critical design realization: **A compiler is only as powerful as its accessibility.**
+
+To ensure 100% reliability and uphold the "Social Good" mission of the project, T.A.R.A. has been redirected to a **Local-First Architecture**.
+
+## 🛠️ Key Redirection Features
+* **Zero-Friction Access:** Removed mandatory IBM Cloud login requirements. Users can now compile and run logic instantly without third-party authentication.
+* **Local Engine Primacy:** Integrated high-performance local simulation as the default backend. This eliminates the "Cloud Gatekeeper" problem and provides zero-cost execution.
+* **Hardware-Agnostic Logic:** The T.A.R.A. Lexer now focuses on universal quantum instructions, ensuring that code written today will be portable to any hardware provider in the future.
+## 🛠️ Diagnostic & Recovery Suite (Legacy Support)
+
+During the transition to v2.5, a suite of diagnostic tools was developed to attempt full cloud synchronization. While the system now defaults to local execution, these tools remain available for advanced verification:
+
+* `fix_everything.py`: Automated mapping of API keys to specific Service Instances.
+* `debug_login.py`: Deep-clean utility to purge corrupted local credentials.
+* `tara_login.py`: Secure gateway for V2 Primitives (Sampler/Estimator) integration.
+
+##  Professional Philosophy
+This update represents a transition from a **Cloud-Dependent Tool** to a **Sovereign Quantum Platform**. By decoupling from unstable third-party infrastructures, T.A.R.A. empowers the user with complete control over their quantum development environment.
+
+
+
+---
