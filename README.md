@@ -125,3 +125,16 @@ Tara_Quantum/ (v2.5 Sovereign)
     ├── core/                # Lexer: Human-to-Quantum Translation
     ├── backend/             # Engine: AerSimulator & Qiskit Logic
     └── utils/               # Senses: Voice, Visualizer, & Q-Inspector
+
+## 🛡️ Featured Product: Q-Inspector
+Q-Inspector is a built-in static analysis tool designed to bridge the gap between quantum theory and reliable code.
+
+### Why Q-Inspector?
+Quantum resources are expensive and fragile. Q-Inspector prevents "Quantum Waste" by analyzing:
+- **Circuit Depth:** Predicting if the algorithm will outlive the qubit's coherence time.
+- **Topology Mapping:** Ensuring virtual links are physically possible.
+- **Logic Integrity:** Catching measurement-based collapse before execution.
+
+### Usage
+Run with the `--inspect` flag for a pre-flight integrity report:
+`python tara_cli.py your_script.tara --inspect`
