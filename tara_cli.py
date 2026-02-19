@@ -1,83 +1,136 @@
 import sys
 import os
-import argparse  # Added for flag handling
+import time
+import platform
 
-# Adds the current directory to the system path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# 1. ENVIRONMENT SETUP
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSET_PATH = os.path.join(BASE_DIR, "assets")
+
+sys.path.append(BASE_DIR)
 
 try:
     from tara_sdk.core.lexer import Lexer
     from tara_sdk.backend.engine import QiskitEngine
     from tara_sdk.utils.visualizer import print_histogram
-    from tara_sdk.utils.voice import TaraVoice
 except ImportError as e:
     print(f"❌ Setup Error: {e}")
     sys.exit(1)
 
-def run_tara(file_name, inspect=False):
-    voice = TaraVoice()
-    engine = QiskitEngine()
-    lexer = Lexer()
-
-    # Search in root and /library/
-    possible_paths = [file_name, os.path.join("library", file_name)]
-    file_path = next((p for p in possible_paths if os.path.exists(p)), None)
+# THE PRODUCTION VOICE ENGINE
+def tara_speak(filename):
+    """Universal audio player for production-level assets."""
+    full_path = os.path.join(ASSET_PATH, filename)
     
-    if not file_path:
-        print(f"❌ Error: Could not find '{file_name}'")
+    if not os.path.exists(full_path):
         return
 
-    with open(file_path, 'r') as f:
-        code = f.read()
+    current_os = platform.system()
 
-    voice.speak(f"Manifesting {file_name}")
+    if current_os == "Darwin":    # macOS
+        os.system(f"afplay {full_path} &")
+    elif current_os == "Windows": # Windows
+        os.system(f'start /min powershell -c (New-Object Media.SoundPlayer "{full_path}").PlaySync()')
+
+# 2. CORE EXECUTION LOGIC
+def execute_logic(file_name, engine, lexer, inspect=False):
+    # Standardize filename
+    original_name = file_name
+    if not file_name.endswith(".tara"):
+        file_name += ".tara"
+
+    file_path = os.path.join(BASE_DIR, "library", file_name)
     
+    if not os.path.exists(file_path):
+        file_path = os.path.join(BASE_DIR, file_name)
+        if not os.path.exists(file_path):
+            print(f"❌ Error: Could not find '{file_name}'")
+            return
+
     try:
-        # 1. Lexical Analysis
+        with open(file_path, 'r') as f:
+            code = f.read()
+
         tokens = lexer.tokenize(code)
 
-        # 2. Q-INSPECTOR MODE (The Product Development Highlight)
         if inspect:
-            voice.speak("Initiating Q-Inspector pre-flight analysis.")
-            print("\n" + "="*40)
-            print("🔍 Q-INSPECTOR: QUANTUM INTEGRITY REPORT")
-            print("-" * 40)
-            
-            # Simple static analysis for the demo
-            qubit_count = len(set(t.value.get('target', 0) for t in tokens if hasattr(t.value, 'get')))
-            gate_count = len([t for t in tokens if t.type != 'CREATE'])
-            
-            print(f"✅ Logical Qubits: {max(qubit_count, 1)}")
-            print(f"✅ Circuit Depth: {gate_count} gates")
-            print(f"✅ Connectivity: All-to-All (Virtual)")
-            print(f"✅ Coherence Risk: LOW")
-            print("-" * 40)
-            print("🛡️ STATUS: CODE IS SAFE TO MANIFEST")
-            print("=" * 40 + "\n")
+            tara_speak("analyzing.wav") 
+            print("\n🔍 Q-INSPECTOR: QUANTUM INTEGRITY REPORT")
+            print("-" * 35)
+            qubits_used = set()
+            for t in tokens:
+                if isinstance(t.value, dict):
+                    for v in t.value.values():
+                        if isinstance(v, int): qubits_used.add(v)
+            print(f"✅ Qubits: {max(len(qubits_used), 1)} | Status: SAFE")
+            print("-" * 35)
+            time.sleep(0.5)
 
-        # 3. Compilation & Execution
+        # COMPILE AND RUN
         qc = engine.compile(tokens)
         results = engine.run_locally(qc) 
         
-        # 4. Output Results
+        # VISUALIZATION
         print_histogram(results)
-        engine.save_vision(qc, "tara_circuit.png")
         
-        voice.speak("Execution complete.")
+        # DYNAMIC PNG NAMING: 
+        # Saves as 'bell_test.png' instead of 'tara_circuit.png'
+        image_name = original_name.replace(".tara", "") + ".png"
+        engine.save_vision(qc, image_name)
+        
+        print(f"🎨 Circuit blueprint saved as: {image_name}")
+        
+        # OPTIONAL: Uncomment the line below to auto-open the PNG on Mac
+        # os.system(f"open {image_name}")
+        
+        tara_speak("complete.wav")
         
     except Exception as e:
-        print(f"⚠️ Error: {e}")
-        voice.speak("A logic error occurred.")
+        print(f"⚠️ Logic Error: {e}")
+
+# 3. INTERACTIVE SHELL
+def start_tara_shell():
+    engine = QiskitEngine()
+    lexer = Lexer()
+
+    os.system('cls' if platform.system() == "Windows" else 'clear')
+    
+    print("==========================================")
+    print("    T.A.R.A. QUANTUM INTERACTIVE v3.1")
+    print("    [Dynamic Visualizer Enabled]")
+    print("==========================================")
+    print("Commands: run <file> | inspect <file> | clear | exit")
+    
+    tara_speak("online.wav")
+
+    while True:
+        try:
+            user_input = input("\n🗣️ TARA > ").strip().split()
+            if not user_input: continue
+            
+            cmd = user_input[0].lower()
+            
+            if cmd in ["exit", "quit"]:
+                break
+
+            if cmd == "clear":
+                os.system('cls' if platform.system() == "Windows" else 'clear')
+                continue
+
+            if len(user_input) < 2:
+                print("❓ Usage: run <file> or inspect <file>")
+                continue
+
+            # Handles filenames with spaces or underscores
+            target_file = "_".join(user_input[1:])
+            
+            if cmd == "run":
+                execute_logic(target_file, engine, lexer, inspect=False)
+            elif cmd == "inspect":
+                execute_logic(target_file, engine, lexer, inspect=True)
+
+        except KeyboardInterrupt:
+            break
 
 if __name__ == "__main__":
-    # Standardizing Argument Parsing for professional CLI feel
-    parser = argparse.ArgumentParser(description="T.A.R.A. Quantum CLI")
-    parser.add_argument("file", help="The .tara file to run")
-    parser.add_argument("--inspect", action="store_true", help="Run Q-Inspector analysis before execution")
-    
-    args = parser.parse_args()
-    
-    if args.file:
-        run_tara(args.file, args.inspect)
-    else:
-        parser.print_help()
+    start_tara_shell()

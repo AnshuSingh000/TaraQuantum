@@ -1,8 +1,6 @@
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 import matplotlib.pyplot as plt
-# This import links the Engine to the Lexer's definition of a Token
-from tara_sdk.core.lexer import Token 
 
 class QiskitEngine:
     def __init__(self):
@@ -16,35 +14,40 @@ class QiskitEngine:
                 max_q = max(max_q, t.value)
             elif isinstance(t.value, dict):
                 vals = [v for v in t.value.values() if isinstance(v, int)]
-                if vals: max_q = max(max_q, max(vals) + 1)
+                if vals: max_q = max(max_q, max(vals))
         
-        qc = QuantumCircuit(max(max_q, 1))
+        # Ensure we have at least one qubit
+        qc = QuantumCircuit(max(max_q + 1, 1))
 
         # Pass 2: Map T.A.R.A. commands to Qiskit gates
         for t in tokens:
-            if t.type in ['H', 'SPIN']: 
+            if t.type in ['H', 'SPIN', 'HADAMARD']: 
                 qc.h(t.value['target'])
             elif t.type == 'X': 
                 qc.x(t.value['target'])
             elif t.type == 'Z': 
                 qc.z(t.value['target'])
-            elif t.type in ['LINK', 'ENTANGLE']: 
-                qc.cx(t.value['ctrl'], t.value['target'])
+            elif t.type in ['LINK', 'ENTANGLE', 'CNOT']: 
+                qc.cx(t.value['ctrl'] if 'ctrl' in t.value else t.value.get('control', 0), 
+                      t.value['target'])
             elif t.type in ['MEASURE', 'OBSERVE']: 
                 qc.measure_all()
             
         return qc
 
     def run_locally(self, qc):
-        # Local simulation for privacy and speed
+        # Automatic measurement if the user forgot
         if not qc.cregs: 
             qc.measure_all()
         
-        job = self.simulator.run(qc, shots=1024)
+        # Using 512 shots to show clear quantum variance for the demo
+        compiled_circuit = transpile(qc, self.simulator)
+        job = self.simulator.run(compiled_circuit, shots=512)
         return job.result().get_counts()
 
     def save_vision(self, qc, filename="tara_circuit.png"):
         # Generates the visual quantum circuit diagram
+        # 
         fig = qc.draw('mpl')
         fig.savefig(filename)
         plt.close(fig)
